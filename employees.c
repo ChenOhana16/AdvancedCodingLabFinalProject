@@ -123,22 +123,43 @@ int login(EmployeeSystem* sys, int* loggedIndex) {
 }
 
 int hasPermission(Role r, int action) {
-    if (action == 1) return r == ROLE_ADMIN;
-    return 1;
+
+    switch (action) {
+    case 1: // add employee
+        return r == ROLE_ADMIN;
+
+    case 2: // inventory
+        return r == ROLE_ADMIN || r == ROLE_WORKER;
+
+    case 3: // delete employee
+        return r == ROLE_ADMIN;
+
+    default:
+        return 0;
+    }
 }
+
 
 void showMenu(Role r) {
     printf("\n--- Menu ---\n");
+
     if (r == ROLE_ADMIN) {
         printf("1. Add employee\n");
         printf("2. Inventory (other module)\n");
+        printf("3. Delete employee\n");
+        printf("4. Show employees\n");
+        printf("0. Exit\n");
+    }
+    else if (r == ROLE_WORKER) {
+        printf("2. Inventory (other module)\n");
+        printf("4. Show employees\n");
         printf("0. Exit\n");
     }
     else {
-        printf("2. Inventory (other module)\n");
         printf("0. Exit\n");
     }
 }
+
 
 void addEmployee(EmployeeSystem* sys) {
     if (!sys) return;
