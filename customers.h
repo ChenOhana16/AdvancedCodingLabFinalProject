@@ -13,19 +13,17 @@ typedef struct {
     int year;
 } Date;
 
-
 typedef struct Item {
     long serialNumber;
     char brand[MAX_STR];
-    char type[MAX_STR];
+    char type[MAX_STR]; 
     float price;
-    int isOutlet;
+    int isOutlet;       
     int stock;
-    Date arrivalDate;
+    Date arrivalDate;   
     struct Item* left;
     struct Item* right;
 } Item;
-
 
 typedef struct Purchase {
     long itemSerial;
@@ -50,8 +48,6 @@ int buyItem(Customer* cust, Item* itemRoot, long itemSerial);
 int returnItem(Customer* cust, Item* itemRoot, long itemSerial);
 void saveCustomersToTextFile(Customer* head, const char* filename);
 Customer* loadCustomersFromTextFile(const char* filename);
-
-
 Item* findItem(Item* root, long serialNumber);
 
 #endif

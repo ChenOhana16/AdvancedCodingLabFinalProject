@@ -1,226 +1,272 @@
-#include "project.h"
+#include "customers.h"
 #include <time.h>
+
+// --- פונקציות עזר ---
+
 long totalDays(Date d){
-    return (d.year*365)+(d.month*30)+d.day;
+    return (d.year*365) + (d.month*30) + d.day;
 }
+
 Date getCurrentDate(){
-    time_t t=time(NULL);
-    struct tm tm=*localtime(&t);
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
     Date today;
-    today.year=tm.tm_year+1900;
-    today.month=tm.tm_mon+1;
-    today.day=tm.tm_mday;
+    today.year = tm.tm_year + 1900;
+    today.month = tm.tm_mon + 1;
+    today.day = tm.tm_mday;
     return today;
 }
-Purchase* createPurchaseNode(long serial,float price,Date date){
-    Purchase* newP=(Purchase*)malloc(sizeof(Purchase));
-    if(newP==NULL){
-        printf("The allocation is failed \n");
+
+int compareDates(Date d1, Date d2){
+    if(d1.year != d2.year) return (d1.year - d2.year);
+    if(d1.month != d2.month) return (d1.month - d2.month);
+    return d1.day - d2.day;
+}
+
+// --- ניהול רשימות ---
+
+Purchase* createPurchaseNode(long serial, float price, Date date){
+    Purchase* newP = (Purchase*)malloc(sizeof(Purchase));
+    if(newP == NULL) {
+        printf("Allocation failed\n");
         return NULL;
     }
-        newP->itemSerial=serial;
-        newP->priceAtPurchase=price;
-        newP->purchaseDate=date;
-        newP->next=NULL;
-        return newP;
-    
+    newP->itemSerial = serial;
+    newP->priceAtPurchase = price;
+    newP->purchaseDate = date;
+    newP->next = NULL;
+    return newP;
 }
-int compareDates(Date d1,Date d2){
-    if(d1.year!=d2.year){
-        return (d1.year-d2.year);
-    }
-    if(d1.month!=d2.month){
-        return(d1.month-d2.month);
-    }
-    return d1.day-d2.day;
-}
-Customer* createCustomer(char* name,char* id,Date joinDate){
-    Customer* newCust=(Customer*)malloc(sizeof(Customer));
-    if(newCust==NULL){
-        printf("The allocation is failed \n");
+
+Customer* createCustomer(char* name, char* id, Date joinDate){
+    Customer* newCust = (Customer*)malloc(sizeof(Customer));
+    if(newCust == NULL) {
+        printf("Allocation failed\n");
         return NULL;
     }
-    strcpy(newCust->fullName,name);
-    strcpy(newCust->id,id);
-    newCust->joinDate=joinDate;
-    newCust->totalSpent=0.0;
-    newCust->purchaseHistory=NULL;
-    newCust->next=NULL;
+    strcpy(newCust->fullName, name);
+    strcpy(newCust->id, id);
+    newCust->joinDate = joinDate;
+    newCust->totalSpent = 0.0;
+    newCust->purchaseHistory = NULL;
+    newCust->next = NULL;
     return newCust;
 }
-Customer* addCustomer(Customer* head,Customer* newCust){
-    if(head==NULL || compareDates(head->joinDate,newCust->joinDate)>0){
-        newCust->next=head;
+
+Customer* addCustomer(Customer* head, Customer* newCust){
+    if(head == NULL || compareDates(head->joinDate, newCust->joinDate) > 0){
+        newCust->next = head;
         return newCust;
     }
-    Customer* current=head;
-    while(current->next!=NULL && compareDates(current->next->joinDate,newCust->joinDate)<=0){
-        current=current->next;
+    Customer* current = head;
+    while(current->next != NULL && compareDates(current->next->joinDate, newCust->joinDate) <= 0){
+        current = current->next;
     }
-    newCust->next=current->next;
-    current->next=newCust; 
+    newCust->next = current->next;
+    current->next = newCust; 
     return head;
 }
-Customer* findCustomer(Customer* head,char * search_id){
-    while(head!=NULL){
-        if(strcmp(head->id,search_id)==0){
-            return head;
-        }
-        else head=head->next;
+
+Customer* findCustomer(Customer* head, char* search_id){
+    while(head != NULL){
+        if(strcmp(head->id, search_id) == 0) return head;
+        head = head->next;
     }
-    printf("The customer doesnt exist\n");
+    printf("Customer not found\n");
     return NULL;
 }
-int buyItem(Customer* cust,Item * itemRoot,long itemSerial){
-    Item* item=findItem(itemRoot,itemSerial);
-    if(item==NULL){
-        printf("Error:Item %ld not found in store.\n",itemSerial);
+
+// --- מכירות והחזרות ---
+
+int buyItem(Customer* cust, Item* itemRoot, long itemSerial){
+    Item* item = findItem(itemRoot, itemSerial);
+    if(item == NULL){
+        printf("Error: Item %ld not found.\n", itemSerial);
         return 0;
     }
-    if(item->stock<=0){
-        printf("Error:Item %ld is out of stock.\n",itemSerial);
+    if(item->stock <= 0){
+        printf("Error: Item %ld out of stock.\n", itemSerial);
         return 0;
     }
+    
+    // בדיקת מגבלת 3 פריטים ביום
     Date today = getCurrentDate();
-
-    int itemsBoughtToday=0;
-    Purchase* p=cust->purchaseHistory;
-    while(p!=NULL){
-        if(compareDates(p->purchaseDate,today)==0){
-            itemsBoughtToday++;
-        }
-        p=p->next;
+    int itemsBoughtToday = 0;
+    Purchase* p = cust->purchaseHistory;
+    while(p != NULL){
+        if(compareDates(p->purchaseDate, today) == 0) itemsBoughtToday++;
+        p = p->next;
     }
-
-    if(itemsBoughtToday>=3){
-        printf("Purchase denied: Customer reached daily limit of 3 items.\n");
+    if(itemsBoughtToday >= 3){
+        printf("Denied: Daily limit reached.\n");
         return 0;
     }
-    Purchase* newPurch=createPurchaseNode(itemSerial,item->price,today);
-    if(newPurch==NULL) return 0;
-    newPurch->next=cust->purchaseHistory;
-    cust->purchaseHistory=newPurch;
+
+    Purchase* newPurch = createPurchaseNode(itemSerial, item->price, today);
+    if(newPurch == NULL) return 0;
+    
+    newPurch->next = cust->purchaseHistory;
+    cust->purchaseHistory = newPurch;
+    
     item->stock--;
-    cust->totalSpent+=item->price;
-    printf("Success! Bought %s for %.2f on %d/%d/%d\n", 
-           item->brand, item->price, today.day, today.month, today.year);
+    cust->totalSpent += item->price;
+    printf("Success! Bought %s for %.2f\n", item->brand, item->price);
     return 1;
 }
+
 int returnItem(Customer* cust, Item* itemRoot, long itemSerial) {
-    Purchase* prev = NULL;
-    Purchase* curr = cust->purchaseHistory;
+    Purchase *prev = NULL, *curr = cust->purchaseHistory;
     Date today = getCurrentDate(); 
     while (curr != NULL) {
         if (curr->itemSerial == itemSerial) {   
-            long dayPassed = totalDays(today) - totalDays(curr->purchaseDate);
-            if (dayPassed > 14) {
-                printf("Return denied: Purchase was %ld days ago (Limit is 14)\n", dayPassed);
+            if (totalDays(today) - totalDays(curr->purchaseDate) > 14) {
+                printf("Return denied: >14 days.\n");
                 return 0;
             }
             Item* item = findItem(itemRoot, itemSerial);
-            if (item != NULL) {
-                item->stock++;
-            }
+            if (item != NULL) item->stock++;
+            
             cust->totalSpent -= curr->priceAtPurchase;
-
-            if (prev == NULL) {
-                cust->purchaseHistory = curr->next; 
-            } else {
-                prev->next = curr->next; 
-            }
+            if (prev == NULL) cust->purchaseHistory = curr->next; 
+            else prev->next = curr->next; 
+            
             free(curr); 
-            printf("Item %ld returned successfully.\n", itemSerial);
+            printf("Item %ld returned.\n", itemSerial);
             return 1; 
         }
         prev = curr;
         curr = curr->next;
     }
-    printf("Error: Customer did not buy item %ld (or already returned it).\n", itemSerial);
+    printf("Purchase not found in history.\n");
     return 0;
 }
-void saveCustomers(Customer* head,const char* filename){
-    FILE* fp=fopen(filename,"w");
-    if(fp==NULL){
-        printf("Error:Could not open file %s for writing\n",filename);
+
+// --- שמירה וטעינה ---
+
+void saveCustomersToTextFile(Customer* head, const char* filename){
+    FILE* fp = fopen(filename, "w");
+    if(!fp) {
+        printf("Error opening file for writing\n");
         return;
     }
-    Customer* current=head;
-    while(current!=NULL){
-        int purchaseCount=0;
-        Purchase* p=current->purchaseHistory;
-        while(p!=NULL){
-            purchaseCount++;
-            p=p->next;
+    Customer* curr = head;
+    while(curr){
+        int count = 0;
+        Purchase* p = curr->purchaseHistory;
+        while(p) { count++; p = p->next; }
+        
+        // שמירת פרטי הלקוח ומספר הקניות
+        fprintf(fp, "%s\n%s\n%.2f\n%d %d %d\n%d\n", 
+                curr->fullName, curr->id, curr->totalSpent, 
+                curr->joinDate.day, curr->joinDate.month, curr->joinDate.year, count);
+        
+        // שמירת הקניות
+        p = curr->purchaseHistory;
+        while(p){
+            fprintf(fp, "%ld %.2f %d %d %d\n", 
+                    p->itemSerial, p->priceAtPurchase, 
+                    p->purchaseDate.day, p->purchaseDate.month, p->purchaseDate.year);
+            p = p->next;
         }
-        fprintf(fp, "%s\n", current->fullName);
-        fprintf(fp, "%s\n", current->id);
-        fprintf(fp, "%.2f\n", current->totalSpent);
-        fprintf(fp, "%d %d %d\n", current->joinDate.day, current->joinDate.month, current->joinDate.year);
-        fprintf(fp,"%d\n",purchaseCount);
-        p=current->purchaseHistory;
-        while(p!=NULL){
-            fprintf(fp,"%ld %.2f %d %d %d\n",p->itemSerial,p->priceAtPurchase,p->purchaseDate.day,p->purchaseDate.month,p->purchaseDate.year);
-            p=p->next;
-        }
-        current=current->next;
+        curr = curr->next;
     }
     fclose(fp);
-    printf("Data saved successfully to %s\n", filename);
+    printf("Saved to %s\n", filename);
 }
-Customer* loadCustomers(const char* filename) {
-    int i;
-    FILE* fp = fopen(filename, "r");
-    if (fp == NULL) {
-        return NULL;
-    }
 
-    Customer* head = NULL;
-    Customer* tail = NULL;
-    char tempName[100];
+Customer* loadCustomersFromTextFile(const char* filename) {
+    FILE* fp = fopen(filename, "r");
+    if (!fp) return NULL;
+    
+    Customer *head = NULL, *tail = NULL;
+    char tempName[MAX_STR];
 
     while (fscanf(fp, "%s", tempName) != EOF) {
-        Customer* newCust = (Customer*)malloc(sizeof(Customer));
-        if (newCust == NULL) {
-            printf("The allocation failed\n");
-            return NULL;
-        }
-
-        strcpy(newCust->fullName, tempName);
-        fscanf(fp, "%s", newCust->id);
-        fscanf(fp, "%f", &newCust->totalSpent);
-        fscanf(fp, "%d %d %d", &newCust->joinDate.day, &newCust->joinDate.month, &newCust->joinDate.year);
+        Customer* n = (Customer*)malloc(sizeof(Customer));
+        strcpy(n->fullName, tempName);
         
-        newCust->purchaseHistory = NULL;
-        newCust->next = NULL;
-
-        int purchaseCount;
-        fscanf(fp, "%d", &purchaseCount);
-
-        Purchase* lastPurch = NULL;
-        for (i = 0; i < purchaseCount; i++) {
-            Purchase* newP = (Purchase*)malloc(sizeof(Purchase));
-            if (newP == NULL) break;
-
-            fscanf(fp, "%ld %f %d %d %d", &newP->itemSerial, &newP->priceAtPurchase, &newP->purchaseDate.day, &newP->purchaseDate.month, &newP->purchaseDate.year);
-            newP->next = NULL;
-
-            if (newCust->purchaseHistory == NULL) {
-                newCust->purchaseHistory = newP;
-            } else {
-                lastPurch->next = newP;
-            }
-            lastPurch = newP;
+        int pCount = 0;
+        // קריאה מתוקנת: קוראים את ה-count למשתנה מקומי ולא ל-&n
+        fscanf(fp, "%s %f %d %d %d %d", 
+               n->id, &n->totalSpent, 
+               &n->joinDate.day, &n->joinDate.month, &n->joinDate.year, 
+               &pCount);
+        
+        n->purchaseHistory = NULL;
+        Purchase* lastP = NULL;
+        
+        for (int i = 0; i < pCount; i++) {
+            Purchase* p = (Purchase*)malloc(sizeof(Purchase));
+            fscanf(fp, "%ld %f %d %d %d", 
+                   &p->itemSerial, &p->priceAtPurchase, 
+                   &p->purchaseDate.day, &p->purchaseDate.month, &p->purchaseDate.year);
+            p->next = NULL;
+            
+            if (!n->purchaseHistory) n->purchaseHistory = p;
+            else lastP->next = p;
+            lastP = p;
         }
-
-        if (head == NULL) {
-            head = newCust;
-            tail = newCust;
-        } else {
-            tail->next = newCust;
-            tail = newCust;
-        }
+        
+        n->next = NULL;
+        if (!head) head = n; 
+        else tail->next = n;
+        tail = n;
     }
     fclose(fp);
-    printf("Data loaded successfully from %s\n", filename);
+    printf("Loaded from %s\n", filename);
     return head;
+}
+
+// --- Main לבדיקה ---
+
+// מימוש זמני של findItem כדי שהלינקר לא יצעק
+Item* findItem(Item* root, long serialNumber) {
+    if (root == NULL) return NULL;
+    if (root->serialNumber == serialNumber) return root;
+    // כרגע אין לנו עץ אמיתי בבדיקה הזו, אז נחזיר NULL אם לא מצאנו בשורש
+    return NULL; 
+}
+
+int main() {
+    printf("--- FULL SYSTEM TEST ---\n");
+    Date today = getCurrentDate();
+    Date oldDate = {1, 1, 2020}; // תאריך ישן לבדיקת המיון
+
+    // 1. יצירת מלאי
+    Item shirt = {505, "Nike", "T-Shirt", 100.0, 0, 10, {1,1,2025}, NULL, NULL};
+    
+    // 2. בדיקת מיון בהוספה
+    Customer* list = NULL;
+    Customer* c1 = createCustomer("New_Guy", "111", today);
+    Customer* c2 = createCustomer("Old_Guy", "222", oldDate);
+    
+    list = addCustomer(list, c1);
+    list = addCustomer(list, c2); // אמור להיכנס ראשון לרשימה!
+
+    printf("\n[Check 1] Sorting: First in list is: %s (Should be Old_Guy)\n", list->fullName);
+
+    // 3. בדיקת חיפוש
+    Customer* found = findCustomer(list, "111"); // מחפשים את New_Guy
+    if(found) printf("[Check 2] Found customer: %s\n", found->fullName);
+
+    printf("\n[Check 3] Testing Daily Limit (Buying 4 items)...\n");
+    buyItem(found, &shirt, 505); // 1
+    buyItem(found, &shirt, 505); // 2
+    buyItem(found, &shirt, 505); // 3
+    int result = buyItem(found, &shirt, 505); // 4 - אמור להיכשל
+    
+    if(result == 0) printf(">>> System correctly BLOCKED the 4th purchase!\n");
+    else printf(">>> ERROR: System allowed 4th purchase!\n");
+
+    // 5. בדיקת החזרה
+    printf("\n[Check 4] Testing Return Item...\n");
+    printf("Before return: Spent=%.2f, Stock=%d\n", found->totalSpent, shirt.stock);
+    returnItem(found, &shirt, 505);
+    printf("After return:  Spent=%.2f, Stock=%d\n", found->totalSpent, shirt.stock);
+
+    // 6. שמירה וטעינה
+    saveCustomersToTextFile(list, "full_test.txt");
+    printf("\n[Check 5] File saved. Test Complete.\n");
+
+    return 0;
 }
