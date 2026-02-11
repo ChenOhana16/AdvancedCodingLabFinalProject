@@ -14,7 +14,7 @@ typedef struct {
 } Date;
 
 typedef struct Purchase {
-    long itemSerial;
+    int itemSerial;
     float priceAtPurchase;
     Date purchaseDate;
     struct Purchase* next;
@@ -32,10 +32,10 @@ typedef struct Customer {
 Customer* createCustomer(char* name, char* id, Date joinDate);
 Customer* addCustomer(Customer* head, Customer* newCust);
 Customer* findCustomer(Customer* head, char* id);
-int buyItem(Customer* cust, ItemNode* itemRoot, long itemSerial);
-int returnItem(Customer* cust, ItemNode* itemRoot, long itemSerial);
+int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial);
+int returnItem(Customer* cust, ItemNode* itemRoot, int itemSerial);
 void saveCustomersToTextFile(Customer* head, const char* filename);
 Customer* loadCustomersFromTextFile(const char* filename);
-ItemNode* searchItem(ItemNode* root, long serialNumber);
+ItemNode* searchItem(ItemNode* root, int serialNumber);
 
 #endif

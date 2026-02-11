@@ -26,7 +26,7 @@ int compareDates(Date d1, Date d2){
 
 // --- ניהול רשימות ---
 
-Purchase* createPurchaseNode(long serial, float price, Date date){
+Purchase* createPurchaseNode(int serial, float price, Date date){
     Purchase* newP = (Purchase*)malloc(sizeof(Purchase));
     if(newP == NULL) {
         printf("Allocation failed\n");
@@ -79,43 +79,67 @@ Customer* findCustomer(Customer* head, char* search_id){
 
 // --- מכירות והחזרות ---
 
-int buyItem(Customer* cust, ItemNode* itemRoot, long itemSerial){
-    ItemNode* item = searchItem(itemRoot, itemSerial);
-    if(item == NULL){
+int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
+{
+    if (cust == NULL) {
+        printf("Error: Customer is NULL.\n");
+        return 0;
+    }
+
+    /* חיפוש הפריט בעץ */
+    ItemNode* foundNode = searchItem(itemRoot, (int)itemSerial);
+
+    if (foundNode == NULL) {
         printf("Error: Item %ld not found.\n", itemSerial);
         return 0;
     }
-    if(item->stock <= 0){
-        printf("Error: Item %ld out of stock.\n", itemSerial);
-        return 0;
-    }
-    
-    // בדיקת מגבלת 3 פריטים ביום
-    Date today = getCurrentDate();
-    int itemsBoughtToday = 0;
-    Purchase* p = cust->purchaseHistory;
-    while(p != NULL){
-        if(compareDates(p->purchaseDate, today) == 0) itemsBoughtToday++;
-        p = p->next;
-    }
-    if(itemsBoughtToday >= 3){
-        printf("Denied: Daily limit reached.\n");
+
+    Item* item = &foundNode->data;
+
+    /* בדיקת מלאי */
+    if (item->stock <= 0) {
+        printf("Error: Item %ld is out of stock.\n", itemSerial);
         return 0;
     }
 
-    Purchase* newPurch = createPurchaseNode(itemSerial, item->price, today);
-    if(newPurch == NULL) return 0;
-    
-    newPurch->next = cust->purchaseHistory;
-    cust->purchaseHistory = newPurch;
-    
+    /* בדיקת מגבלת 3 פריטים ביום */
+    Date today = getCurrentDate();
+    int itemsBoughtToday = 0;
+
+    Purchase* p = cust->purchaseHistory;
+    while (p != NULL) {
+        if (compareDates(p->purchaseDate, today) == 0)
+            itemsBoughtToday++;
+        p = p->next;
+    }
+
+    if (itemsBoughtToday >= 3) {
+        printf("Denied: Daily limit (3 items) reached.\n");
+        return 0;
+    }
+
+    /* יצירת רכישה חדשה */
+    Purchase* newPurchase = createPurchaseNode(itemSerial, item->price, today);
+    if (newPurchase == NULL)
+        return 0;
+
+    /* הכנסת הרכישה לראש הרשימה */
+    newPurchase->next = cust->purchaseHistory;
+    cust->purchaseHistory = newPurchase;
+
+    /* עדכון נתונים */
     item->stock--;
     cust->totalSpent += item->price;
-    printf("Success! Bought %s for %.2f\n", item->brand, item->price);
+
+    printf("Success! Customer %s bought item %ld (%.2f)\n",
+           cust->fullName,
+           itemSerial,
+           item->price);
+
     return 1;
 }
 
-int returnItem(Customer* cust, ItemNode* itemRoot, long itemSerial) {
+int returnItem(Customer* cust, ItemNode* itemRoot, int itemSerial) {
     Purchase *prev = NULL, *curr = cust->purchaseHistory;
     Date today = getCurrentDate(); 
     while (curr != NULL) {
@@ -125,7 +149,7 @@ int returnItem(Customer* cust, ItemNode* itemRoot, long itemSerial) {
                 return 0;
             }
             ItemNode* item = searchItem(itemRoot, itemSerial);
-            if (item != NULL) item->stock++;
+            if (item != NULL) item->data.stock++;
             
             cust->totalSpent -= curr->priceAtPurchase;
             if (prev == NULL) cust->purchaseHistory = curr->next; 
@@ -216,58 +240,4 @@ Customer* loadCustomersFromTextFile(const char* filename) {
     fclose(fp);
     printf("Loaded from %s\n", filename);
     return head;
-}
-
-// --- Main לבדיקה ---
-
-// מימוש זמני של searchItem כדי שהלינקר לא יצעק
-ItemNode* searchItem(ItemNode* root, long serialNumber) {
-    if (root == NULL) return NULL;
-    if (root->serialNumber == serialNumber) return root;
-    // כרגע אין לנו עץ אמיתי בבדיקה הזו, אז נחזיר NULL אם לא מצאנו בשורש
-    return NULL; 
-}
-
-int main() {
-    printf("--- FULL SYSTEM TEST ---\n");
-    Date today = getCurrentDate();
-    Date oldDate = {1, 1, 2020}; // תאריך ישן לבדיקת המיון
-
-    // 1. יצירת מלאי
-    Item shirt = {505, "Nike", "T-Shirt", 100.0, 0, 10, {1,1,2025}, NULL, NULL};
-    
-    // 2. בדיקת מיון בהוספה
-    Customer* list = NULL;
-    Customer* c1 = createCustomer("New_Guy", "111", today);
-    Customer* c2 = createCustomer("Old_Guy", "222", oldDate);
-    
-    list = addCustomer(list, c1);
-    list = addCustomer(list, c2); // אמור להיכנס ראשון לרשימה!
-
-    printf("\n[Check 1] Sorting: First in list is: %s (Should be Old_Guy)\n", list->fullName);
-
-    // 3. בדיקת חיפוש
-    Customer* found = findCustomer(list, "111"); // מחפשים את New_Guy
-    if(found) printf("[Check 2] Found customer: %s\n", found->fullName);
-
-    printf("\n[Check 3] Testing Daily Limit (Buying 4 items)...\n");
-    buyItem(found, &shirt, 505); // 1
-    buyItem(found, &shirt, 505); // 2
-    buyItem(found, &shirt, 505); // 3
-    int result = buyItem(found, &shirt, 505); // 4 - אמור להיכשל
-    
-    if(result == 0) printf(">>> System correctly BLOCKED the 4th purchase!\n");
-    else printf(">>> ERROR: System allowed 4th purchase!\n");
-
-    // 5. בדיקת החזרה
-    printf("\n[Check 4] Testing Return Item...\n");
-    printf("Before return: Spent=%.2f, Stock=%d\n", found->totalSpent, shirt.stock);
-    returnItem(found, &shirt, 505);
-    printf("After return:  Spent=%.2f, Stock=%d\n", found->totalSpent, shirt.stock);
-
-    // 6. שמירה וטעינה
-    saveCustomersToTextFile(list, "full_test.txt");
-    printf("\n[Check 5] File saved. Test Complete.\n");
-
-    return 0;
 }
