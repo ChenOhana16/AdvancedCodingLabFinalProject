@@ -1,1 +1,11 @@
 [2026-02-11 21:01:50] System initialized with default admin
+[2026-02-11 21:09:58] Login success
+[2026-02-11 21:11:33] Employee added
+[2026-02-11 21:12:06] System initialized from file
+[2026-02-11 21:12:13] Login failed
+[2026-02-11 21:12:31] Login failed
+[2026-02-11 21:12:38] Login success
+[2026-02-11 21:13:00] System initialized from file
+[2026-02-11 21:13:08] Login success
+[2026-02-11 21:13:40] Employee added
+[2026-02-11 21:14:51] Employee added
