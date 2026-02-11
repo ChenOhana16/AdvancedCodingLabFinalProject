@@ -2,54 +2,87 @@
 #include "items.h"
 #include "items.c"
 
+void showMenu() {
+    printf("\n========== ITEM MANAGEMENT ==========\n");
+    printf("1. Insert new item\n");
+    printf("2. Search item by serial number\n");
+    printf("3. Delete item\n");
+    printf("4. Show all items\n");
+    printf("5. Save items to file\n");
+    printf("6. Exit\n");
+    printf("Choose option: ");
+}
+
 int main() {
 
     ItemNode* root = NULL;
+    int choice;
+    int serial;
 
-    printf("=== Loading items from file ===\n");
+    /* טעינה בתחילת התוכנית */
     root = loadItemsFromFile("items.dat");
 
-    printf("\n=== Inserting test items ===\n");
+    do {
+        showMenu();
+        scanf("%d", &choice);
 
-    Item item1 = {100, "T-Shirt", "Nike", 99.9, 10, 1, "01-01-2026", 0};
-    Item item2 = {50, "Jeans", "Levis", 199.9, 5, 0, "02-01-2026", 0};
-    Item item3 = {150, "Jacket", "Adidas", 299.9, 3, 1, "03-01-2026", 0};
+        switch (choice) {
 
-    root = insertItem(root, item1);
-    root = insertItem(root, item2);
-    root = insertItem(root, item3);
+        case 1: {
+            Item newItem = createItemFromUser();
+            root = insertItem(root, newItem);
+            break;
+        }
 
-    printf("\n=== Current Items (Inorder) ===\n");
-    printInorder(root);
+        case 2: {
+            printf("Enter serial number to search: ");
+            scanf("%d", &serial);
 
-    printf("\n=== Testing Search ===\n");
-    ItemNode* found = searchItem(root, 100);
-    if (found)
-        printf("Found item: %s\n", found->data.name);
-    else
-        printf("Item not found\n");
+            ItemNode* found = searchItem(root, serial);
+            if (found) {
+                printf("\nItem found:\n");
+                printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
+                       found->data.serialNumber,
+                       found->data.name,
+                       found->data.brand,
+                       found->data.price,
+                       found->data.stock,
+                       found->data.onSale,
+                       found->data.entryDate);
+            } else {
+                printf("Item not found.\n");
+            }
+            break;
+        }
 
-    printf("\n=== Testing Delete (Soft Delete) ===\n");
-    root = deleteItem(root, 100);
+        case 3: {
+            printf("Enter serial number to delete: ");
+            scanf("%d", &serial);
+            root = deleteItem(root, serial);
+            break;
+        }
 
-    printf("\n=== Items After Delete ===\n");
-    printInorder(root);
+        case 4:
+            printf("\n=== All Items (Inorder Sorted) ===\n");
+            printInorder(root);
+            break;
 
-    printf("\n=== Saving to File ===\n");
-    saveItemsToFile(root, "items.dat");
+        case 5:
+            saveItemsToFile(root, "items.dat");
+            printf("Items saved successfully.\n");
+            break;
 
-    printf("\n=== Freeing Tree ===\n");
+        case 6:
+            printf("Saving and exiting...\n");
+            saveItemsToFile(root, "items.dat");
+            break;
+
+        default:
+            printf("Invalid option.\n");
+        }
+
+    } while (choice != 6);
+
     freeTree(root);
-
-    printf("\n=== Reloading From File ===\n");
-    root = loadItemsFromFile("items.dat");
-
-    printf("\n=== Items After Reload ===\n");
-    printInorder(root);
-
-    freeTree(root);
-
-    printf("\n=== TEST COMPLETE ===\n");
-
     return 0;
 }
