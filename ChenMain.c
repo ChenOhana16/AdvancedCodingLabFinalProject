@@ -84,5 +84,5 @@ int main() {
     } while (choice != 6);
 
     freeTree(root);
-    return 0;
+    return 1;
 }
