@@ -1,5 +1,6 @@
 #include "customers.h"
 #include <time.h>
+#include "items.h"
 
 // --- פונקציות עזר ---
 
@@ -78,8 +79,8 @@ Customer* findCustomer(Customer* head, char* search_id){
 
 // --- מכירות והחזרות ---
 
-int buyItem(Customer* cust, Item* itemRoot, long itemSerial){
-    Item* item = findItem(itemRoot, itemSerial);
+int buyItem(Customer* cust, ItemNode* itemRoot, long itemSerial){
+    ItemNode* item = searchItem(itemRoot, itemSerial);
     if(item == NULL){
         printf("Error: Item %ld not found.\n", itemSerial);
         return 0;
@@ -114,7 +115,7 @@ int buyItem(Customer* cust, Item* itemRoot, long itemSerial){
     return 1;
 }
 
-int returnItem(Customer* cust, Item* itemRoot, long itemSerial) {
+int returnItem(Customer* cust, ItemNode* itemRoot, long itemSerial) {
     Purchase *prev = NULL, *curr = cust->purchaseHistory;
     Date today = getCurrentDate(); 
     while (curr != NULL) {
@@ -123,7 +124,7 @@ int returnItem(Customer* cust, Item* itemRoot, long itemSerial) {
                 printf("Return denied: >14 days.\n");
                 return 0;
             }
-            Item* item = findItem(itemRoot, itemSerial);
+            ItemNode* item = searchItem(itemRoot, itemSerial);
             if (item != NULL) item->stock++;
             
             cust->totalSpent -= curr->priceAtPurchase;
@@ -219,8 +220,8 @@ Customer* loadCustomersFromTextFile(const char* filename) {
 
 // --- Main לבדיקה ---
 
-// מימוש זמני של findItem כדי שהלינקר לא יצעק
-Item* findItem(Item* root, long serialNumber) {
+// מימוש זמני של searchItem כדי שהלינקר לא יצעק
+ItemNode* searchItem(ItemNode* root, long serialNumber) {
     if (root == NULL) return NULL;
     if (root->serialNumber == serialNumber) return root;
     // כרגע אין לנו עץ אמיתי בבדיקה הזו, אז נחזיר NULL אם לא מצאנו בשורש

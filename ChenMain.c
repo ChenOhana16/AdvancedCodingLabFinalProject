@@ -1,88 +1,129 @@
 #include <stdio.h>
-#include "items.h"
-#include "items.c"
+#include <stdlib.h>
+#include <string.h>
 
-void showMenu() {
-    printf("\n========== ITEM MANAGEMENT ==========\n");
-    printf("1. Insert new item\n");
-    printf("2. Search item by serial number\n");
-    printf("3. Delete item\n");
-    printf("4. Show all items\n");
-    printf("5. Save items to file\n");
-    printf("6. Exit\n");
-    printf("Choose option: ");
+#include "items.c"
+#include "items.h"
+#include "customers.c"
+#include "customers.h"
+
+void showMainMenu() {
+    printf("\n=========== STORE SYSTEM ===========\n");
+    printf("1. Add Item\n");
+    printf("2. Show Items\n");
+    printf("3. Add Customer\n");
+    printf("4. Show Customers\n");
+    printf("5. Buy Item\n");
+    printf("6. Return Item\n");
+    printf("7. Save All\n");
+    printf("8. Exit\n");
+    printf("Choose: ");
+}
+
+void printCustomers(Customer* head) {
+    while (head) {
+        printf("Name: %s | ID: %s | Total Spent: %.2f\n",
+               head->fullName, head->id, head->totalSpent);
+        head = head->next;
+    }
 }
 
 int main() {
 
-    ItemNode* root = NULL;
-    int choice;
-    int serial;
+    ItemNode* itemRoot = loadItemsFromFile("items.dat");
+    Customer* customerList = loadCustomersFromTextFile("customers.txt");
 
-    /* טעינה בתחילת התוכנית */
-    root = loadItemsFromFile("items.dat");
+    int choice;
 
     do {
-        showMenu();
+        showMainMenu();
         scanf("%d", &choice);
 
         switch (choice) {
 
         case 1: {
             Item newItem = createItemFromUser();
-            root = insertItem(root, newItem);
+            itemRoot = insertItem(itemRoot, newItem);
             break;
         }
 
-        case 2: {
-            printf("Enter serial number to search: ");
-            scanf("%d", &serial);
-
-            ItemNode* found = searchItem(root, serial);
-            if (found) {
-                printf("\nItem found:\n");
-                printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
-                       found->data.serialNumber,
-                       found->data.name,
-                       found->data.brand,
-                       found->data.price,
-                       found->data.stock,
-                       found->data.onSale,
-                       found->data.entryDate);
-            } else {
-                printf("Item not found.\n");
-            }
+        case 2:
+            printInorder(itemRoot);
             break;
-        }
 
         case 3: {
-            printf("Enter serial number to delete: ");
-            scanf("%d", &serial);
-            root = deleteItem(root, serial);
+            char name[50], id[20];
+            Date today = getCurrentDate();
+
+            printf("Full Name: ");
+            scanf("%s", name);
+
+            printf("ID: ");
+            scanf("%s", id);
+
+            Customer* newCust = createCustomer(name, id, today);
+            customerList = addCustomer(customerList, newCust);
             break;
         }
 
         case 4:
-            printf("\n=== All Items (Inorder Sorted) ===\n");
-            printInorder(root);
+            printCustomers(customerList);
             break;
 
-        case 5:
-            saveItemsToFile(root, "items.dat");
-            printf("Items saved successfully.\n");
+        case 5: {
+            char id[20];
+            long serial;
+
+            printf("Customer ID: ");
+            scanf("%s", id);
+
+            Customer* cust = findCustomer(customerList, id);
+            if (!cust) break;
+
+            printf("Item Serial: ");
+            scanf("%ld", &serial);
+
+            buyItem(cust, itemRoot, serial);
+            break;
+        }
+
+        case 6: {
+            char id[20];
+            long serial;
+
+            printf("Customer ID: ");
+            scanf("%s", id);
+
+            Customer* cust = findCustomer(customerList, id);
+            if (!cust) break;
+
+            printf("Item Serial to return: ");
+            scanf("%ld", &serial);
+
+            returnItem(cust, itemRoot, serial);
+            break;
+        }
+
+        case 7:
+            saveItemsToFile(itemRoot, "items.dat");
+            saveCustomersToTextFile(customerList, "customers.txt");
+            printf("All data saved.\n");
             break;
 
-        case 6:
+        case 8:
             printf("Saving and exiting...\n");
-            saveItemsToFile(root, "items.dat");
+            saveItemsToFile(itemRoot, "items.dat");
+            saveCustomersToTextFile(customerList, "customers.txt");
             break;
 
         default:
-            printf("Invalid option.\n");
+            printf("Invalid choice\n");
         }
 
-    } while (choice != 6);
+    } while (choice != 8);
 
-    freeTree(root);
+    freeTree(itemRoot);
+
+    printf("System closed successfully.\n");
     return 0;
 }
