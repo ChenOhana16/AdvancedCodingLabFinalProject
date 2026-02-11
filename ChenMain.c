@@ -6,6 +6,8 @@
 #include "items.h"
 #include "customers.c"
 #include "customers.h"
+#include "employees.c"
+#include "employees.h"
 
 void showMainMenu() {
     printf("\n=========== STORE SYSTEM ===========\n");

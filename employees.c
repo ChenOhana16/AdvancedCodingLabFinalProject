@@ -187,3 +187,97 @@ void addEmployee(EmployeeSystem* sys) {
     writeToLog("Employee added");
     printf("Employee added successfully.\n");
 }
+
+void printEmployees(const EmployeeSystem* sys) {
+    if (!sys || sys->count == 0) {
+        printf("No employees found.\n");
+        return;
+    }
+
+    printf("\n--- Employees List ---\n");
+    for (int i = 0; i < sys->count; i++) {
+        printf("%d) Username: %s | Name: %s | Role: %d\n",
+            i + 1,
+            sys->arr[i].username,
+            sys->arr[i].firstname,
+            sys->arr[i].role);
+    }
+}
+
+void deleteEmployee(EmployeeSystem* sys) {
+    if (!sys || sys->count == 0) {
+        printf("No employees to delete.\n");
+        return;
+    }
+
+    char username[USERNAME_LEN];
+    printf("Enter username to delete: ");
+    if (scanf("%29s", username) != 1) return;
+
+    int idx = findUserIndex(sys, username);
+    if (idx < 0) {
+        printf("Employee not found.\n");
+        writeToLog("Delete employee failed: not found");
+        return;
+    }
+
+    for (int i = idx; i < sys->count - 1; i++) {
+        sys->arr[i] = sys->arr[i + 1];
+    }
+
+    sys->count--;
+
+    if (sys->count == 0) {
+        free(sys->arr);
+        sys->arr = NULL;
+    }
+    else {
+        Employee* newArr = realloc(sys->arr, sizeof(Employee) * sys->count);
+        if (newArr)
+            sys->arr = newArr;
+    }
+
+    saveEmployees(sys);
+    writeToLog("Employee deleted");
+
+    printf("Employee deleted successfully.\n");
+}
+
+void deleteEmployee(EmployeeSystem* sys) {
+    if (!sys || sys->count == 0) {
+        printf("No employees to delete.\n");
+        return;
+    }
+
+    char username[USERNAME_LEN];
+    printf("Enter username to delete: ");
+    if (scanf("%29s", username) != 1) return;
+
+    int idx = findUserIndex(sys, username);
+    if (idx < 0) {
+        printf("Employee not found.\n");
+        writeToLog("Delete employee failed: not found");
+        return;
+    }
+
+    for (int i = idx; i < sys->count - 1; i++) {
+        sys->arr[i] = sys->arr[i + 1];
+    }
+
+    sys->count--;
+
+    if (sys->count == 0) {
+        free(sys->arr);
+        sys->arr = NULL;
+    }
+    else {
+        Employee* newArr = realloc(sys->arr, sizeof(Employee) * sys->count);
+        if (newArr)
+            sys->arr = newArr;
+    }
+
+    saveEmployees(sys);
+    writeToLog("Employee deleted");
+
+    printf("Employee deleted successfully.\n");
+}

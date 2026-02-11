@@ -36,5 +36,8 @@ int hasPermission(Role r, int action);
 
 void writeToLog(const char* msg);
 
+void printEmployees(const EmployeeSystem* sys);
+void deleteEmployee(EmployeeSystem* sys);
+
 
 #endif
