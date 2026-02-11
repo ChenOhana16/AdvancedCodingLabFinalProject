@@ -4,8 +4,11 @@
 #include <string.h>
 
 #include "items.h"
+#include "items.c"
 #include "customers.h"
+#include "customers.c"
 #include "employees.h"
+#include "employees.c"
 
 void showMainMenu(Role r) {
 

@@ -38,4 +38,6 @@ void saveCustomersToTextFile(Customer* head, const char* filename);
 Customer* loadCustomersFromTextFile(const char* filename);
 ItemNode* searchItem(ItemNode* root, int serialNumber);
 
+Date getCurrentDate();
+
 #endif
