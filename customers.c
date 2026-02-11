@@ -90,7 +90,7 @@ int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
     ItemNode* foundNode = searchItem(itemRoot, (int)itemSerial);
 
     if (foundNode == NULL) {
-        printf("Error: Item %ld not found.\n", itemSerial);
+        printf("Error: Item %d not found.\n", itemSerial);
         return 0;
     }
 
@@ -98,7 +98,7 @@ int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
 
     /* בדיקת מלאי */
     if (item->stock <= 0) {
-        printf("Error: Item %ld is out of stock.\n", itemSerial);
+        printf("Error: Item %d is out of stock.\n", itemSerial);
         return 0;
     }
 
@@ -131,7 +131,7 @@ int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
     item->stock--;
     cust->totalSpent += item->price;
 
-    printf("Success! Customer %s bought item %ld (%.2f)\n",
+    printf("Success! Customer %s bought item %d (%.2f)\n",
            cust->fullName,
            itemSerial,
            item->price);
@@ -156,7 +156,7 @@ int returnItem(Customer* cust, ItemNode* itemRoot, int itemSerial) {
             else prev->next = curr->next; 
             
             free(curr); 
-            printf("Item %ld returned.\n", itemSerial);
+            printf("Item %d returned.\n", itemSerial);
             return 1; 
         }
         prev = curr;
@@ -188,7 +188,7 @@ void saveCustomersToTextFile(Customer* head, const char* filename){
         // שמירת הקניות
         p = curr->purchaseHistory;
         while(p){
-            fprintf(fp, "%ld %.2f %d %d %d\n", 
+            fprintf(fp, "%d %.2f %d %d %d\n", 
                     p->itemSerial, p->priceAtPurchase, 
                     p->purchaseDate.day, p->purchaseDate.month, p->purchaseDate.year);
             p = p->next;
@@ -222,7 +222,7 @@ Customer* loadCustomersFromTextFile(const char* filename) {
         
         for (int i = 0; i < pCount; i++) {
             Purchase* p = (Purchase*)malloc(sizeof(Purchase));
-            fscanf(fp, "%ld %f %d %d %d", 
+            fscanf(fp, "%d %f %d %d %d", 
                    &p->itemSerial, &p->priceAtPurchase, 
                    &p->purchaseDate.day, &p->purchaseDate.month, &p->purchaseDate.year);
             p->next = NULL;
