@@ -14,7 +14,7 @@ typedef struct {
     int stock;
     int onSale;            // 0 / 1
     char entryDate[DATE_LEN];
-    int isDeleted;         // 0 = קיים, 1 = נמחק (soft delete)
+    int isDeleted;         // 0 = קיים = 1 ,נמחק (soft delete)
 } Item;
 
 /* --------- צומת BST --------- */
@@ -38,5 +38,7 @@ void saveItemsToFile(ItemNode* root, const char* filename);
 
 /* --------- עזר --------- */
 Item createItemFromUser();
+
+void printInorder(ItemNode* root);
 
 #endif

@@ -146,4 +146,25 @@ Item createItemFromUser() {
     item.isDeleted = 0;
 
     return item;
+
+}
+
+void printInorder(ItemNode* root) {
+    if (!root)
+        return;
+
+    printInorder(root->left);
+
+    if (!root->data.isDeleted) {
+        printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
+               root->data.serialNumber,
+               root->data.name,
+               root->data.brand,
+               root->data.price,
+               root->data.stock,
+               root->data.onSale,
+               root->data.entryDate);
+    }
+
+    printInorder(root->right);
 }
