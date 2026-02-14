@@ -1,3 +1,6 @@
 admin manager 12345678 1
 tedi tedi 123123 2
 sergey sergey 321 3
+chen chen ohana 2
+cheno chen 123123 2
+tedy tedy 1234 3

@@ -9,3 +9,29 @@
 [2026-02-11 21:13:08] Login success
 [2026-02-11 21:13:40] Employee added
 [2026-02-11 21:14:51] Employee added
+[2026-02-14 15:53:02] System initialized from file
+[2026-02-14 15:53:10] Login success
+[2026-02-14 15:54:24] System initialized from file
+[2026-02-14 15:55:32] Login failed
+[2026-02-14 15:55:36] Login failed
+[2026-02-14 15:55:46] Login failed
+[2026-02-14 15:55:46] System locked after 3 failed attempts
+[2026-02-14 15:55:53] System initialized from file
+[2026-02-14 15:55:58] Login success
+[2026-02-14 15:56:28] Employee added
+[2026-02-14 15:58:23] System initialized from file
+[2026-02-14 15:58:32] Login failed
+[2026-02-14 15:58:37] Login failed
+[2026-02-14 15:58:41] Login success
+[2026-02-14 15:58:48] Add employee failed: username exists
+[2026-02-14 15:59:08] Employee added
+[2026-02-14 15:59:20] System initialized from file
+[2026-02-14 15:59:28] Login success
+[2026-02-14 16:04:20] System initialized from file
+[2026-02-14 16:04:25] Login success
+[2026-02-14 16:04:34] Add employee failed: username exists
+[2026-02-14 16:04:52] Employee added
+[2026-02-14 16:05:02] System initialized from file
+[2026-02-14 16:05:07] Login success
+[2026-02-14 16:08:00] System initialized from file
+[2026-02-14 16:08:04] Login success
