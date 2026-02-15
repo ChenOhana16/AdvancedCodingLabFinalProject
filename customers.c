@@ -241,3 +241,31 @@ Customer* loadCustomersFromTextFile(const char* filename) {
     printf("Loaded from %s\n", filename);
     return head;
 }
+
+int isVIP(Customer* cust) {
+
+    if (cust == NULL)
+        return 0;
+
+    return cust->totalSpent > 1000;
+}
+
+void printVIPCustomers(Customer* head) {
+
+    printf("\n==== VIP Customers ====\n");
+    int found = 0;
+    while (head) {
+        if (isVIP(head)) {
+            printf("Name: %s | ID: %s | Total: %.2f \n",
+                head->fullName,
+                head->id,
+                head->totalSpent);
+            found = 1;
+        }
+
+        head = head->next;
+    }
+
+    if (!found)
+        printf("No VIP customers found.\n");
+}

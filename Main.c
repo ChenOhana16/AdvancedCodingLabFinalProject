@@ -24,6 +24,7 @@ void showMainMenu(Role r) {
         printf("7. Add Employee\n");
         printf("8. Save All\n");
         printf("9. Check Out Of Stock\n");
+        printf("10. Show VIP Customers\n");
         printf("0. Exit\n");
     }
     else if (r == ROLE_WORKER) {
@@ -45,14 +46,22 @@ void showMainMenu(Role r) {
 }
 
 void printCustomers(Customer* head) {
+
     while (head) {
-        printf("Name: %s | ID: %s | Total Spent: %.2f\n",
+        printf("Name: %s | ID: %s | Total Spent: %.2f",
             head->fullName,
             head->id,
             head->totalSpent);
+
+        if (isVIP(head))
+            printf(" | VIP ");
+
+        printf("\n");
+
         head = head->next;
     }
 }
+
 
 int main() {
 
@@ -176,6 +185,14 @@ int main() {
                 
             else
                 printf("No permission.\n");
+            break;
+
+        case 10:
+            if (userRole == ROLE_ADMIN)
+                printVIPCustomers(customerList);
+            else
+                printf("No permission.\n");
+
             break;
 
         case 0:
