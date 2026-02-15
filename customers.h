@@ -37,6 +37,8 @@ int returnItem(Customer* cust, ItemNode* itemRoot, int itemSerial);
 void saveCustomersToTextFile(Customer* head, const char* filename);
 Customer* loadCustomersFromTextFile(const char* filename);
 ItemNode* searchItem(ItemNode* root, int serialNumber);
+int isVIP(Customer* cust);
+void printVIPCustomers(Customer* head);
 
 Date getCurrentDate();
 

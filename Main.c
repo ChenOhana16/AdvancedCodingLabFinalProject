@@ -157,7 +157,7 @@ int main() {
             break;
 
         case 7:
-            if (userRole == ROLE_ADMIN)
+            if (userRole != ROLE_TRAINEE)
                 addEmployee(&empSys);
             else
                 printf("No permission.\n");
@@ -171,7 +171,11 @@ int main() {
             break;
 
         case 9:
-            checkOutOfStock(itemRoot);
+            if (userRole == ROLE_ADMIN)
+                checkOutOfStock(itemRoot);
+                
+            else
+                printf("No permission.\n");
             break;
 
         case 0:
