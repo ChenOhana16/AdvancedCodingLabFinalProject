@@ -23,7 +23,8 @@ void showMainMenu(Role r) {
         printf("6. Return Item\n");
         printf("7. Add Employee\n");
         printf("8. Save All\n");
-        printf("9. Exit\n");
+        printf("9. Check Out Of Stock\n");
+        printf("0. Exit\n");
     }
     else if (r == ROLE_WORKER) {
         printf("2. Show Items\n");
@@ -32,12 +33,12 @@ void showMainMenu(Role r) {
         printf("5. Buy Item\n");
         printf("6. Return Item\n");
         printf("8. Save All\n");
-        printf("9. Exit\n");
+        printf("0. Exit\n");
     }
     else {
         printf("2. Show Items\n");
         printf("4. Show Customers\n");
-        printf("9. Exit\n");
+        printf("0. Exit\n");
     }
 
     printf("Choose: ");
@@ -170,6 +171,10 @@ int main() {
             break;
 
         case 9:
+            checkOutOfStock(itemRoot);
+            break;
+
+        case 0:
             printf("Saving and exiting...\n");
             saveItemsToFile(itemRoot, "items.dat");
             saveCustomersToTextFile(customerList, "customers.txt");
@@ -180,7 +185,7 @@ int main() {
             printf("Invalid choice\n");
         }
 
-    } while (choice != 9);
+    } while (choice != 0);
 
     /* ===== Free Memory ===== */
 

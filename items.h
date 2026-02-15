@@ -41,4 +41,6 @@ Item createItemFromUser();
 
 void printInorder(ItemNode* root);
 
+void checkOutOfStock(ItemNode* root);
+
 #endif
