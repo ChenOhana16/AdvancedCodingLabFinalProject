@@ -3,6 +3,28 @@
 #include <string.h>
 #include "items.h"
 
+static void clearInputBuffer(void) {
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+    }
+}
+
+static int readIntInRange(const char* prompt, int min, int max) {
+    int value;
+    int readCount;
+
+    while (1) {
+        printf("%s", prompt);
+        readCount = scanf("%d", &value);
+
+        if (readCount == 1 && value >= min && value <= max) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter a number between %d and %d.\n", min, max);
+        clearInputBuffer();
+    }
+}
 /* ---------- יצירת צומת חדש ---------- */
 static ItemNode* createNode(Item item) {
     ItemNode* node = (ItemNode*)malloc(sizeof(ItemNode));
@@ -140,13 +162,33 @@ Item createItemFromUser() {
     printf("On sale (1=yes, 0=no): ");
     scanf("%d", &item.onSale);
 
-    printf("Entry date (DD-MM-YYYY): ");
-    scanf("%10s", item.entryDate);
+    printf("Entry date:\n");
+    item.entryDate.day = readIntInRange("Day (1-31): ", 1, 31);
+    item.entryDate.month = readIntInRange("Month (1-12): ", 1, 12);
+    item.entryDate.year = readIntInRange("Year (4 digits): ", 1000, 9999);
 
     item.isDeleted = 0;
 
     return item;
 
+}
+
+ItemNode* deleteItemFromUser(ItemNode* root) {
+    int serialNumber;
+
+    if (root == NULL) {
+        printf("No items available.\n");
+        return root;
+    }
+
+    printf("Enter serial number to delete: ");
+    if (scanf("%d", &serialNumber) != 1) {
+        printf("Invalid serial number input.\n");
+        clearInputBuffer();
+        return root;
+    }
+
+    return deleteItem(root, serialNumber);
 }
 
 void printInorder(ItemNode* root) {
@@ -156,14 +198,16 @@ void printInorder(ItemNode* root) {
     printInorder(root->left);
 
     if (!root->data.isDeleted) {
-        printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
+        printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %02d-%02d-%04d\n",
                root->data.serialNumber,
                root->data.name,
                root->data.brand,
                root->data.price,
                root->data.stock,
                root->data.onSale,
-               root->data.entryDate);
+               root->data.entryDate.day,
+               root->data.entryDate.month,
+               root->data.entryDate.year);
     }
 
     printInorder(root->right);
@@ -183,3 +227,5 @@ void checkOutOfStock(ItemNode* root) {
 
     checkOutOfStock(root->right);
 }
+
+

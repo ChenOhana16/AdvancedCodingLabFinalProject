@@ -1,0 +1,25 @@
+[2026-02-16 19:44:51] System initialized with default admin
+[2026-02-16 19:44:51] System initialized from file
+[2026-02-16 19:45:00] Login failed
+[2026-02-16 19:45:09] System initialized from file
+[2026-02-16 19:45:50] System initialized from file
+[2026-02-16 19:45:58] Login success
+[2026-02-16 19:52:48] System initialized from file
+[2026-02-16 19:52:55] Login success
+[2026-02-16 20:50:09] System initialized from file
+[2026-02-16 20:50:20] Login success
+[2026-02-16 20:52:09] System initialized from file
+[2026-02-16 20:52:17] Login failed
+[2026-02-16 20:52:26] Login success
+[2026-02-16 20:59:51] System initialized from file
+[2026-02-16 21:00:01] Login success
+[2026-02-16 21:13:47] System initialized from file
+[2026-02-16 21:13:53] Login success
+[2026-02-16 21:17:37] System initialized from file
+[2026-02-16 21:17:46] Login success
+[2026-02-16 21:26:11] System initialized from file
+[2026-02-16 21:26:21] Login success
+[2026-02-16 21:31:56] System initialized from file
+[2026-02-16 21:32:06] Login success
+[2026-02-16 21:36:55] System initialized from file
+[2026-02-16 21:37:01] Login success

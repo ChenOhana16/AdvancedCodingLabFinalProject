@@ -4,21 +4,21 @@
 
 // --- פונקציות עזר ---
 
-long totalDays(Date d){
+long totalDays(date d){
     return (d.year*365) + (d.month*30) + d.day;
 }
 
-Date getCurrentDate(){
+date getCurrentDate(){
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    Date today;
+    date today;
     today.year = tm.tm_year + 1900;
     today.month = tm.tm_mon + 1;
     today.day = tm.tm_mday;
     return today;
 }
 
-int compareDates(Date d1, Date d2){
+int compareDates(date d1, date d2){
     if(d1.year != d2.year) return (d1.year - d2.year);
     if(d1.month != d2.month) return (d1.month - d2.month);
     return d1.day - d2.day;
@@ -26,7 +26,7 @@ int compareDates(Date d1, Date d2){
 
 // --- ניהול רשימות ---
 
-Purchase* createPurchaseNode(int serial, float price, Date date){
+Purchase* createPurchaseNode(int serial, float price, date purchaseDate){
     Purchase* newP = (Purchase*)malloc(sizeof(Purchase));
     if(newP == NULL) {
         printf("Allocation failed\n");
@@ -34,12 +34,12 @@ Purchase* createPurchaseNode(int serial, float price, Date date){
     }
     newP->itemSerial = serial;
     newP->priceAtPurchase = price;
-    newP->purchaseDate = date;
+    newP->purchaseDate = purchaseDate;
     newP->next = NULL;
     return newP;
 }
 
-Customer* createCustomer(char* name, char* id, Date joinDate){
+Customer* createCustomer(char* name, char* id, date joinDate){
     Customer* newCust = (Customer*)malloc(sizeof(Customer));
     if(newCust == NULL) {
         printf("Allocation failed\n");
@@ -103,7 +103,7 @@ int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
     }
 
     /* בדיקת מגבלת 3 פריטים ביום */
-    Date today = getCurrentDate();
+    date today = getCurrentDate();
     int itemsBoughtToday = 0;
 
     Purchase* p = cust->purchaseHistory;
@@ -141,7 +141,7 @@ int buyItem(Customer* cust, ItemNode* itemRoot, int itemSerial)
 
 int returnItem(Customer* cust, ItemNode* itemRoot, int itemSerial) {
     Purchase *prev = NULL, *curr = cust->purchaseHistory;
-    Date today = getCurrentDate(); 
+    date today = getCurrentDate(); 
     while (curr != NULL) {
         if (curr->itemSerial == itemSerial) {   
             if (totalDays(today) - totalDays(curr->purchaseDate) > 14) {

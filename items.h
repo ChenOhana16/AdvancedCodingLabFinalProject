@@ -5,7 +5,13 @@
 #define BRAND_LEN 30
 #define DATE_LEN 11   // DD-MM-YYYY
 
-/* --------- מבנה פריט --------- */
+typedef struct {
+    int day;
+    int month;
+    int year;
+} date;
+
+
 typedef struct {
     int serialNumber;
     char name[NAME_LEN];
@@ -13,7 +19,7 @@ typedef struct {
     float price;
     int stock;
     int onSale;            // 0 / 1
-    char entryDate[DATE_LEN];
+    date entryDate;
     int isDeleted;         // 0 = קיים = 1 ,נמחק (soft delete)
 } Item;
 
@@ -38,6 +44,7 @@ void saveItemsToFile(ItemNode* root, const char* filename);
 
 /* --------- עזר --------- */
 Item createItemFromUser();
+ItemNode* deleteItemFromUser(ItemNode* root);
 
 void printInorder(ItemNode* root);
 

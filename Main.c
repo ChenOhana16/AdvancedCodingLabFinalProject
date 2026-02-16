@@ -11,6 +11,20 @@
 #include "employees.c"
 
 void searchItemsRecursive(ItemNode* root);
+int serialExistsInTree(ItemNode* root, int serialNumber);
+
+int serialExistsInTree(ItemNode* root, int serialNumber) {
+    if (root == NULL)
+        return 0;
+
+    if (root->data.serialNumber == serialNumber)
+        return 1;
+
+    if (serialNumber < root->data.serialNumber)
+        return serialExistsInTree(root->left, serialNumber);
+
+    return serialExistsInTree(root->right, serialNumber);
+}
 
 void showMainMenu(Role r) {
 
@@ -18,7 +32,7 @@ void showMainMenu(Role r) {
 
     if (r == ROLE_ADMIN) {
         printf("1. Add Item\n");
-        printf("2. Show Items\n");
+        printf("2. Delete Item\n");
         printf("3. Add Customer\n");
         printf("4. Show Customers\n");
         printf("5. Buy Item\n");
@@ -100,19 +114,28 @@ int main() {
         case 1:
             if (userRole == ROLE_ADMIN) {
                 Item newItem = createItemFromUser();
+
+                while (serialExistsInTree(itemRoot, newItem.serialNumber)) {
+                    printf("Serial number %d already exists. Enter a different serial number: ", newItem.serialNumber);
+                    scanf("%d", &newItem.serialNumber);
+                }
+
                 itemRoot = insertItem(itemRoot, newItem);
             }
             else printf("No permission.\n");
             break;
 
         case 2:
-            printInorder(itemRoot);
+            if (userRole == ROLE_ADMIN)
+                itemRoot = deleteItemFromUser(itemRoot);
+            else
+                printInorder(itemRoot);
             break;
 
         case 3:
             if (userRole != ROLE_TRAINEE) {
                 char name[50], id[20];
-                Date today = getCurrentDate();
+                date today = getCurrentDate();
 
                 printf("Full Name: ");
                 scanf("%s", name);
@@ -218,7 +241,7 @@ int main() {
             char brand[50], name[50];
             float price;
             int boolValue;
-            Date d;
+            date d;
             int mode;
 
             if (searchOption == 1) {
@@ -243,11 +266,13 @@ int main() {
             }
 
             if (searchOption == 4) {
-                printf("Enter date day-month-year: ");
-                scanf("%d %d %d", &d.day, &d.month, &d.year);
+                printf("Enter date:\n");
+                d.day = readIntInRange("Day (1-31): ", 1, 31);
+                d.month = readIntInRange("Month (1-12): ", 1, 12);
+                d.year = readIntInRange("Year (4 digits): ", 1000, 9999);
 
                 printf("1.Before 2.After 3.Equal\n");
-                scanf("%d", &mode);
+                mode = readIntInRange("Choose mode (1-3): ", 1, 3);
             }
 
             printf("\n--- RESULTS ---\n");
@@ -281,7 +306,7 @@ int main() {
                         match = 1;
                 }
                 
-                /*
+             
                 if (searchOption == 4) {
                     int cmp = compareDates(current->data.entryDate, d);
                     if (mode == 1 && cmp < 0)
@@ -291,17 +316,24 @@ int main() {
                     else if (mode == 3 && cmp == 0)
                         match = 1;
                 }
-                */ 
+              
+
+                if (searchOption == 5) {
+                    if (!current->data.isDeleted)
+                        match = 1;
+                }
 
                 if (match) {
-                    printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
+                    printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %02d-%02d-%04d\n",
                         current->data.serialNumber,
                         current->data.name,
                         current->data.brand,
                         current->data.price,
                         current->data.stock,
                         current->data.onSale,
-                        current->data.entryDate);
+                        current->data.entryDate.day,
+                        current->data.entryDate.month,
+                        current->data.entryDate.year);
                 }
 
                 current = current->right;
@@ -345,3 +377,4 @@ int main() {
     printf("System closed successfully.\n");
     return 0;
 }
+
