@@ -10,6 +10,8 @@
 #include "employees.h"
 #include "employees.c"
 
+void searchItemsRecursive(ItemNode* root);
+
 void showMainMenu(Role r) {
 
     printf("\n=========== STORE SYSTEM ===========\n");
@@ -25,6 +27,7 @@ void showMainMenu(Role r) {
         printf("8. Save All\n");
         printf("9. Check Out Of Stock\n");
         printf("10. Show VIP Customers\n");
+        printf("11. Search Items\n");
         printf("0. Exit\n");
     }
     else if (r == ROLE_WORKER) {
@@ -34,6 +37,7 @@ void showMainMenu(Role r) {
         printf("5. Buy Item\n");
         printf("6. Return Item\n");
         printf("8. Save All\n");
+        printf("11. Search Items\n");
         printf("0. Exit\n");
     }
     else {
@@ -61,7 +65,6 @@ void printCustomers(Customer* head) {
         head = head->next;
     }
 }
-
 
 int main() {
 
@@ -193,6 +196,132 @@ int main() {
             else
                 printf("No permission.\n");
 
+            break;
+
+        case 11:
+
+            printf("\n=== SEARCH MENU ===\n");
+            printf("1. Brand + Name\n");
+            printf("2. Price comparison\n");
+            printf("3. On Sale\n");
+            printf("4. Date comparison\n");
+            printf("5. Show all items\n");
+
+            int searchOption;
+
+            scanf("%d", &searchOption);
+
+            ItemNode* stack[100];
+            int top = -1;
+            ItemNode* current = itemRoot;
+
+            char brand[50], name[50];
+            float price;
+            int boolValue;
+            Date d;
+            int mode;
+
+            if (searchOption == 1) {
+                printf("Enter brand: ");
+                scanf("%s", brand);
+
+                printf("Enter name: ");
+                scanf("%s", name);
+            }
+
+            if (searchOption == 2) {
+                printf("Enter price: ");
+                scanf("%f", &price);
+
+                printf("1.Greater 2.Less 3.Equal\n");
+                scanf("%d", &mode);
+            }
+
+            if (searchOption == 3) {
+                printf("Enter OnSale (0/1): ");
+                scanf("%d", &boolValue);
+            }
+
+            if (searchOption == 4) {
+                printf("Enter date day-month-year: ");
+                scanf("%d %d %d", &d.day, &d.month, &d.year);
+
+                printf("1.Before 2.After 3.Equal\n");
+                scanf("%d", &mode);
+            }
+
+            printf("\n--- RESULTS ---\n");
+
+            while (current || top >= 0) {
+                while (current) {
+                    stack[++top] = current;
+                    current = current->left;
+                }
+
+                current = stack[top--];
+
+                int match = 0;
+
+                if (searchOption == 1) {
+                    if (strstr(current->data.brand, brand))
+                        match = 1;
+                }
+                
+                if (searchOption == 2) {
+                    if (mode == 1 && current->data.price > price)
+                        match = 1;
+                    else if (mode == 2 && current->data.price < price)
+                        match = 1;
+                    else if (mode == 3 && current->data.price == price)
+                        match = 1;
+                }
+                
+                if (searchOption == 3) {
+                    if (current->data.onSale == boolValue)
+                        match = 1;
+                }
+                
+                /*
+                if (searchOption == 4) {
+                    int cmp = compareDates(current->data.entryDate, d);
+                    if (mode == 1 && cmp < 0)
+                        match = 1;
+                    else if (mode == 2 && cmp > 0)
+                        match = 1;
+                    else if (mode == 3 && cmp == 0)
+                        match = 1;
+                }
+                */ 
+
+                if (match) {
+                    printf("Serial: %d | Name: %s | Brand: %s | Price: %.2f | Stock: %d | OnSale: %d | Date: %s\n",
+                        current->data.serialNumber,
+                        current->data.name,
+                        current->data.brand,
+                        current->data.price,
+                        current->data.stock,
+                        current->data.onSale,
+                        current->data.entryDate);
+                }
+
+                current = current->right;
+            }
+
+            long selected;
+
+            printf("\nEnter serial number to select item (0 cancel): ");
+            scanf("%ld", &selected);
+
+                if (selected != 0) {
+                    ItemNode* found = searchItem(itemRoot, selected);
+
+                    if (found)
+                        printf("Selected: %s | %.2f\n",
+                            found->data.brand,
+                            found->data.price);
+                    else
+                        printf("Not found\n");
+                }
             break;
 
         case 0:
