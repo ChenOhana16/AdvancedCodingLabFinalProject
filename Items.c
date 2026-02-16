@@ -176,7 +176,7 @@ void checkOutOfStock(ItemNode* root) {
     checkOutOfStock(root->left);
 
     if (root->data.stock == 0) {
-        printf("OUT OF STOCK: %s | Serial: %ld\n",
+        printf("OUT OF STOCK: %s | Serial: %d\n",
                root->data.name,
                root->data.serialNumber);
     }
