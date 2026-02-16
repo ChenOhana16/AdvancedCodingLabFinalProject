@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "items.h"
 
 static void clearInputBuffer(void) {
@@ -22,6 +23,23 @@ static int readIntInRange(const char* prompt, int min, int max) {
         }
 
         printf("Invalid input. Please enter a number between %d and %d.\n", min, max);
+        clearInputBuffer();
+    }
+}
+
+static float readFloatValue(const char* prompt) {
+    float value;
+    int readCount;
+
+    while (1) {
+        printf("%s", prompt);
+        readCount = scanf("%f", &value);
+
+        if (readCount == 1) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter a numeric value.\n");
         clearInputBuffer();
     }
 }
@@ -153,14 +171,11 @@ Item createItemFromUser() {
     printf("Brand: ");
     scanf(" %29[^\n]", item.brand);
 
-    printf("Price: ");
-    scanf("%f", &item.price);
+    item.price = readFloatValue("Price: ");
 
-    printf("Stock: ");
-    scanf("%d", &item.stock);
+    item.stock = readIntInRange("Stock: ", 1, INT_MAX);
 
-    printf("On sale (1=yes, 0=no): ");
-    scanf("%d", &item.onSale);
+    item.onSale = readIntInRange("On sale (1=yes, 0=no): ", 0, 1);
 
     printf("Entry date:\n");
     item.entryDate.day = readIntInRange("Day (1-31): ", 1, 31);
