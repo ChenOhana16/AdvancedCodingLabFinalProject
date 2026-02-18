@@ -7,11 +7,36 @@
 #define EMP_FILE "employees.txt"
 #define LOG_FILE "log.txt"
 
+static char g_activeUser[USERNAME_LEN] = "";
+static Role g_activeRole = ROLE_TRAINEE;
+static int g_hasActiveUser = 0;
+
 static void safeCopy(char* dst, size_t dstSize, const char* src) {
     if (!dst || dstSize == 0) return;
     if (!src) { dst[0] = '\0'; return; }
     strncpy(dst, src, dstSize - 1);
     dst[dstSize - 1] = '\0';
+}
+
+static const char* roleToString(Role role) {
+    switch (role) {
+    case ROLE_ADMIN:
+        return "ADMIN";
+    case ROLE_WORKER:
+        return "WORKER";
+    case ROLE_TRAINEE:
+        return "TRAINEE";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+void setActiveLogUser(const char* username, Role role) {
+    if (username && username[0] != '\0') {
+        safeCopy(g_activeUser, sizeof(g_activeUser), username);
+        g_activeRole = role;
+        g_hasActiveUser = 1;
+    }
 }
 
 void writeToLog(const char* msg) {
@@ -24,7 +49,13 @@ void writeToLog(const char* msg) {
     if (t) strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", t);
     else safeCopy(ts, sizeof(ts), "unknown-time");
 
-    fprintf(f, "[%s] %s\n", ts, msg ? msg : "");
+    if (g_hasActiveUser) {
+        fprintf(f, "[%s] User=%s Role=%s | %s\n",
+                ts, g_activeUser, roleToString(g_activeRole), msg ? msg : "");
+    }
+    else {
+        fprintf(f, "[%s] %s\n", ts, msg ? msg : "");
+    }
     fclose(f);
 }
 
@@ -99,6 +130,7 @@ int login(EmployeeSystem* sys, int* loggedIndex) {
 
     char u[USERNAME_LEN];
     char p[PASSWORD_LEN];
+    char logMsg[128];
 
     for (int attempt = 1; attempt <= 3; attempt++) {
         printf("Username: ");
@@ -110,12 +142,15 @@ int login(EmployeeSystem* sys, int* loggedIndex) {
         int idx = findUserIndex(sys, u);
         if (idx >= 0 && strcmp(sys->arr[idx].password, p) == 0) {
             *loggedIndex = idx;
-            writeToLog("Login success");
+            setActiveLogUser(sys->arr[idx].username, sys->arr[idx].role);
+            snprintf(logMsg, sizeof(logMsg), "Login success | username=%s", sys->arr[idx].username);
+            writeToLog(logMsg);
             return 1;
         }
 
         printf("Invalid credentials. Attempts left: %d\n", 3 - attempt);
-        writeToLog("Login failed");
+        snprintf(logMsg, sizeof(logMsg), "Login failed | username=%s", u);
+        writeToLog(logMsg);
     }
 
     writeToLog("System locked after 3 failed attempts");

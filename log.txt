@@ -27,3 +27,50 @@
 [2026-02-16 21:47:08] Login success
 [2026-02-16 21:50:16] System initialized from file
 [2026-02-16 21:50:24] Login success
+[2026-02-18 19:49:56] System initialized from file
+[2026-02-18 19:50:03] Login success
+[2026-02-18 19:55:32] System initialized from file
+[2026-02-18 19:55:40] Login success
+[2026-02-18 19:57:57] System initialized from file
+[2026-02-18 19:58:24] Login success
+[2026-02-18 20:00:30] System initialized from file
+[2026-02-18 20:00:36] Login success
+[2026-02-18 20:11:25] System initialized from file
+[2026-02-18 20:12:02] System initialized from file
+[2026-02-18 20:12:21] Login success
+[2026-02-18 20:20:49] System initialized from file
+[2026-02-18 20:20:58] Login failed | username=?????
+[2026-02-18 20:21:07] User=admin Role=ADMIN | Login success | username=admin
+[2026-02-18 20:21:07] User=admin Role=ADMIN | Session started
+[2026-02-18 20:21:28] User=admin Role=ADMIN | Add item success | serial=99 name=hgjhghg
+[2026-02-18 20:21:45] User=admin Role=ADMIN | Delete item requested
+[2026-02-18 20:22:16] User=admin Role=ADMIN | Employee added
+[2026-02-18 20:22:16] User=admin Role=ADMIN | Add employee requested
+[2026-02-18 20:22:21] User=admin Role=ADMIN | Exit system and auto-save
+[2026-02-18 20:22:42] System initialized from file
+[2026-02-18 20:22:48] User=admin Role=ADMIN | Login success | username=admin
+[2026-02-18 20:22:48] User=admin Role=ADMIN | Session started
+[2026-02-18 20:22:51] User=admin Role=ADMIN | Exit system and auto-save
+[2026-02-18 20:22:55] System initialized from file
+[2026-02-18 20:23:02] Login failed | username=ted
+[2026-02-18 20:23:12] User=admin Role=ADMIN | Login success | username=admin
+[2026-02-18 20:23:12] User=admin Role=ADMIN | Session started
+[2026-02-18 20:23:19] User=admin Role=ADMIN | Add employee failed: username exists
+[2026-02-18 20:23:19] User=admin Role=ADMIN | Add employee requested
+[2026-02-18 20:23:33] User=admin Role=ADMIN | Employee added
+[2026-02-18 20:23:33] User=admin Role=ADMIN | Add employee requested
+[2026-02-18 20:23:42] User=admin Role=ADMIN | Exit system and auto-save
+[2026-02-18 20:23:44] System initialized from file
+[2026-02-18 20:23:52] User=tedi Role=WORKER | Login success | username=tedi
+[2026-02-18 20:23:52] User=tedi Role=WORKER | Session started
+[2026-02-18 20:24:15] User=tedi Role=WORKER | Add item denied: no permission
+[2026-02-18 20:25:20] System initialized from file
+[2026-02-18 20:25:26] User=tedi Role=WORKER | Login success | username=tedi
+[2026-02-18 20:25:26] User=tedi Role=WORKER | Session started
+[2026-02-18 20:25:29] User=tedi Role=WORKER | Check out-of-stock denied: no permission
+[2026-02-18 20:25:32] User=tedi Role=WORKER | Show VIP customers denied: no permission
+[2026-02-18 20:26:58] User=tedi Role=WORKER | Exit system and auto-save
+[2026-02-18 20:27:01] System initialized from file
+[2026-02-18 20:27:11] User=tedi Role=WORKER | Login success | username=tedi
+[2026-02-18 20:27:11] User=tedi Role=WORKER | Session started
+[2026-02-18 20:27:13] User=tedi Role=WORKER | Add employee denied: no permission
