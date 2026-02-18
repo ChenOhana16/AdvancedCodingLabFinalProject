@@ -34,6 +34,7 @@ void addEmployee(EmployeeSystem* sys);
 void showMenu(Role r);
 int hasPermission(Role r, int action);
 
+void setActiveLogUser(const char* username, Role role);
 void writeToLog(const char* msg);
 void printEmployees(const EmployeeSystem* sys);
 

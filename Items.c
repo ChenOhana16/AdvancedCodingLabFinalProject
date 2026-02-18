@@ -35,11 +35,11 @@ static float readFloatValue(const char* prompt) {
         printf("%s", prompt);
         readCount = scanf("%f", &value);
 
-        if (readCount == 1) {
+        if (readCount == 1 && value > 0.0f) {
             return value;
         }
 
-        printf("Invalid input. Please enter a numeric value.\n");
+        printf("Invalid input. Please enter a positive number greater than 0.\n");
         clearInputBuffer();
     }
 }
@@ -162,8 +162,7 @@ void freeTree(ItemNode* root) {
 Item createItemFromUser() {
     Item item;
 
-    printf("Serial number: ");
-    scanf("%d", &item.serialNumber);
+    item.serialNumber = readIntInRange("Serial number: ", 1, INT_MAX);
 
     printf("Name: ");
     scanf(" %49[^\n]", item.name);

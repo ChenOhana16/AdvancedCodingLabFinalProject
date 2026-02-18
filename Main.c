@@ -13,6 +13,33 @@
 void searchItemsRecursive(ItemNode* root);
 int serialExistsInTree(ItemNode* root, int serialNumber);
 
+static void clearInputBufferMain(void) {
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+    }
+}
+
+static int readPositiveIntMain(const char* prompt) {
+    int value;
+    int readCount;
+
+    while (1) {
+        printf("%s", prompt);
+        readCount = scanf("%d", &value);
+
+        if (readCount == 1 && value > 0) {
+            return value;
+        }
+
+        printf("Invalid input. Please enter a positive number greater than 0.\n");
+        clearInputBufferMain();
+    }
+}
+
+static void logAction(const char* action) {
+    writeToLog(action);
+}
+
 int serialExistsInTree(ItemNode* root, int serialNumber) {
     if (root == NULL)
         return 0;
@@ -57,6 +84,8 @@ void showMainMenu(Role r) {
     else {
         printf("2. Show Items\n");
         printf("4. Show Customers\n");
+        printf("8. Save All\n");
+        printf("11. Search Items\n");
         printf("0. Exit\n");
     }
 
@@ -96,6 +125,8 @@ int main() {
     }
 
     Role userRole = empSys.arr[loggedIndex].role;
+    setActiveLogUser(empSys.arr[loggedIndex].username, userRole);
+    logAction("Session started");
 
     /* ===== Load Store Data ===== */
 
@@ -113,27 +144,38 @@ int main() {
 
         case 1:
             if (userRole == ROLE_ADMIN) {
+                char logMsg[160];
                 Item newItem = createItemFromUser();
 
                 while (serialExistsInTree(itemRoot, newItem.serialNumber)) {
-                    printf("Serial number %d already exists. Enter a different serial number: ", newItem.serialNumber);
-                    scanf("%d", &newItem.serialNumber);
+                    printf("Serial number %d already exists.\n", newItem.serialNumber);
+                    newItem.serialNumber = readPositiveIntMain("Enter a different serial number: ");
                 }
 
                 itemRoot = insertItem(itemRoot, newItem);
+                snprintf(logMsg, sizeof(logMsg), "Add item success | serial=%d name=%s", newItem.serialNumber, newItem.name);
+                logAction(logMsg);
             }
-            else printf("No permission.\n");
+            else {
+                printf("No permission.\n");
+                logAction("Add item denied: no permission");
+            }
             break;
 
         case 2:
-            if (userRole == ROLE_ADMIN)
+            if (userRole == ROLE_ADMIN) {
                 itemRoot = deleteItemFromUser(itemRoot);
-            else
+                logAction("Delete item requested");
+            }
+            else {
                 printInorder(itemRoot);
+                logAction("Show items");
+            }
             break;
 
         case 3:
             if (userRole != ROLE_TRAINEE) {
+                char logMsg[160];
                 char name[50], id[20];
                 date today = getCurrentDate();
 
@@ -144,17 +186,29 @@ int main() {
                 scanf("%s", id);
 
                 Customer* newCust = createCustomer(name, id, today);
-                customerList = addCustomer(customerList, newCust);
+                if (newCust) {
+                    customerList = addCustomer(customerList, newCust);
+                    snprintf(logMsg, sizeof(logMsg), "Add customer success | id=%s name=%s", id, name);
+                    logAction(logMsg);
+                }
+                else {
+                    logAction("Add customer failed: allocation");
+                }
             }
-            else printf("No permission.\n");
+            else {
+                printf("No permission.\n");
+                logAction("Add customer denied: no permission");
+            }
             break;
 
         case 4:
             printCustomers(customerList);
+            logAction("Show customers");
             break;
 
         case 5:
             if (userRole != ROLE_TRAINEE) {
+                char logMsg[160];
                 char id[20];
                 long serial;
 
@@ -162,18 +216,32 @@ int main() {
                 scanf("%s", id);
 
                 Customer* cust = findCustomer(customerList, id);
-                if (!cust) break;
+                if (!cust) {
+                    snprintf(logMsg, sizeof(logMsg), "Buy item failed: customer not found | id=%s", id);
+                    logAction(logMsg);
+                    break;
+                }
 
                 printf("Item Serial: ");
                 scanf("%ld", &serial);
 
-                buyItem(cust, itemRoot, serial);
+                if (buyItem(cust, itemRoot, (int)serial)) {
+                    snprintf(logMsg, sizeof(logMsg), "Buy item success | customer=%s serial=%ld", id, serial);
+                }
+                else {
+                    snprintf(logMsg, sizeof(logMsg), "Buy item failed | customer=%s serial=%ld", id, serial);
+                }
+                logAction(logMsg);
             }
-            else printf("No permission.\n");
+            else {
+                printf("No permission.\n");
+                logAction("Buy item denied: no permission");
+            }
             break;
 
         case 6:
             if (userRole != ROLE_TRAINEE) {
+                char logMsg[160];
                 char id[20];
                 long serial;
 
@@ -181,21 +249,38 @@ int main() {
                 scanf("%s", id);
 
                 Customer* cust = findCustomer(customerList, id);
-                if (!cust) break;
+                if (!cust) {
+                    snprintf(logMsg, sizeof(logMsg), "Return item failed: customer not found | id=%s", id);
+                    logAction(logMsg);
+                    break;
+                }
 
                 printf("Item Serial to return: ");
                 scanf("%ld", &serial);
 
-                returnItem(cust, itemRoot, serial);
+                if (returnItem(cust, itemRoot, (int)serial)) {
+                    snprintf(logMsg, sizeof(logMsg), "Return item success | customer=%s serial=%ld", id, serial);
+                }
+                else {
+                    snprintf(logMsg, sizeof(logMsg), "Return item failed | customer=%s serial=%ld", id, serial);
+                }
+                logAction(logMsg);
             }
-            else printf("No permission.\n");
+            else {
+                printf("No permission.\n");
+                logAction("Return item denied: no permission");
+            }
             break;
 
         case 7:
-            if (userRole != ROLE_TRAINEE)
+            if (userRole == ROLE_ADMIN) {
                 addEmployee(&empSys);
-            else
+                logAction("Add employee requested");
+            }
+            else {
                 printf("No permission.\n");
+                logAction("Add employee denied: no permission");
+            }
             break;
 
         case 8:
@@ -203,21 +288,29 @@ int main() {
             saveCustomersToTextFile(customerList, "customers.txt");
             saveEmployees(&empSys);
             printf("All data saved.\n");
+            logAction("Save all data");
             break;
 
         case 9:
-            if (userRole == ROLE_ADMIN)
+            if (userRole == ROLE_ADMIN) {
                 checkOutOfStock(itemRoot);
-                
-            else
+                logAction("Check out-of-stock items");
+            }
+            else {
                 printf("No permission.\n");
+                logAction("Check out-of-stock denied: no permission");
+            }
             break;
 
         case 10:
-            if (userRole == ROLE_ADMIN)
+            if (userRole == ROLE_ADMIN) {
                 printVIPCustomers(customerList);
-            else
+                logAction("Show VIP customers");
+            }
+            else {
                 printf("No permission.\n");
+                logAction("Show VIP customers denied: no permission");
+            }
 
             break;
 
@@ -233,6 +326,11 @@ int main() {
             int searchOption;
 
             scanf("%d", &searchOption);
+            {
+                char logMsg[120];
+                snprintf(logMsg, sizeof(logMsg), "Search items | option=%d", searchOption);
+                logAction(logMsg);
+            }
 
             ItemNode* stack[100];
             int top = -1;
@@ -345,6 +443,7 @@ int main() {
             scanf("%ld", &selected);
 
                 if (selected != 0) {
+                    char logMsg[120];
                     ItemNode* found = searchItem(itemRoot, selected);
 
                     if (found)
@@ -353,6 +452,13 @@ int main() {
                             found->data.price);
                     else
                         printf("Not found\n");
+
+                    snprintf(logMsg, sizeof(logMsg), "Search select item | serial=%ld found=%s",
+                        selected, found ? "yes" : "no");
+                    logAction(logMsg);
+                }
+                else {
+                    logAction("Search select item canceled");
                 }
             break;
 
@@ -361,10 +467,16 @@ int main() {
             saveItemsToFile(itemRoot, "items.dat");
             saveCustomersToTextFile(customerList, "customers.txt");
             saveEmployees(&empSys);
+            logAction("Exit system and auto-save");
             break;
 
         default:
             printf("Invalid choice\n");
+            {
+                char logMsg[120];
+                snprintf(logMsg, sizeof(logMsg), "Invalid menu choice | choice=%d", choice);
+                logAction(logMsg);
+            }
         }
 
     } while (choice != 0);
