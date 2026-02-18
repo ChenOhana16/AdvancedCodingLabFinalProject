@@ -57,3 +57,8 @@
 [2026-02-16 20:29:48] Login success
 [2026-02-16 20:30:22] System initialized from file
 [2026-02-16 20:30:27] Login success
+[2026-02-18 19:28:41] System initialized from file
+[2026-02-18 19:28:46] Login success
+[2026-02-18 19:47:35] System initialized from file
+[2026-02-18 19:47:41] Login success
+[2026-02-18 19:51:58] Add employee failed: username exists
