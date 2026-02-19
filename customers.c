@@ -208,6 +208,10 @@ Customer* loadCustomersFromTextFile(const char* filename) {
 
     while (fscanf(fp, "%s", tempName) != EOF) {
         Customer* n = (Customer*)malloc(sizeof(Customer));
+        if(n == NULL) {
+        printf("Allocation failed\n");
+        return NULL;
+    }
         strcpy(n->fullName, tempName);
         
         int pCount = 0;
